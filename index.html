@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wszystkiego najlepszego, ziomek!</title>
+  <meta name="description" content="Jednostronicowa witryna z życzeniami i galerią zdjęć (do 40)." />
+  <style>
+    :root{
+      --bg:#0f1221;         /* tło */
+      --card:#171a2c;       /* karty */
+      --ink:#e6e9ff;        /* tekst */
+      --muted:#a9b0d9;      /* tekst wtórny */
+      --accent:#6aa6ff;     /* akcent */
+      --accent-2:#7cf3cf;   /* akcent 2 */
+      --ring: 0 0 0 3px rgba(122,166,255,.35);
+      --radius: 18px;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 600px at 10% -10%, rgba(122,166,255,.12), transparent),
+                  radial-gradient(1200px 600px at 100% 0%, rgba(124,243,207,.08), transparent),
+                  var(--bg);
+      color:var(--ink);
+      line-height:1.6;
+    }
+    a{color:var(--accent)}
+
+    .wrap{max-width:1100px;margin-inline:auto;padding:24px}
+
+    header{
+      display:grid; gap:18px; align-items:center; justify-items:center;
+      text-align:center; padding:28px; background:color-mix(in lab, var(--card), transparent 10%);
+      border-radius: calc(var(--radius) + 6px);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,.06);
+    }
+    header h1{
+      margin:0; font-size: clamp(28px, 2.8vw + 8px, 48px);
+      letter-spacing:.3px; line-height:1.2;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+    }
+    .subtitle{color:var(--muted); max-width:780px}
+
+    .card{
+      background:var(--card); border-radius:var(--radius);
+      padding:22px; box-shadow:var(--shadow); border:1px solid rgba(255,255,255,.06);
+    }
+
+    .wish{ display:grid; gap:14px; }
+    .wish h2{margin:0; font-size:22px}
+    .wish p{margin:0; color:var(--ink)}
+
+    .toolbar{display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; margin-top:6px}
+    .toolbar-left{display:flex; gap:10px; align-items:center}
+    .btn{
+      appearance:none; border:none; background:linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 100%);
+      color:#0b1020; font-weight:700; padding:10px 14px; border-radius:12px; cursor:pointer;
+      box-shadow:0 6px 18px rgba(106,166,255,.25); transition:transform .05s ease;
+    }
+    .btn:active{ transform:translateY(1px) }
+    .ghost{ background:transparent; color:var(--ink); border:1px solid rgba(255,255,255,.12) }
+
+    .limit{ font-size:14px; color:var(--muted) }
+
+    /* Galleria */
+    .gallery{ display:grid; gap:10px; margin-top:16px }
+    @media (min-width: 560px){ .gallery{ grid-template-columns: repeat(3, 1fr) } }
+    @media (min-width: 860px){ .gallery{ grid-template-columns: repeat(4, 1fr) } }
+
+    .tile{ position:relative; overflow:hidden; border-radius:14px; aspect-ratio: 1/1; background:#0a0d1a; border:1px solid rgba(255,255,255,.06) }
+    .tile img{ width:100%; height:100%; object-fit:cover; display:block; filter:saturate(1.02) contrast(1.04) }
+    .tile .remove{
+      position:absolute; top:8px; right:8px; background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.2);
+      color:#fff; padding:4px 8px; border-radius:10px; font-size:12px; cursor:pointer; display:none
+    }
+    .tile:hover .remove{ display:block }
+
+    /* Modal (lightbox) */
+    .lightbox{ position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+      background:rgba(0,0,0,.75); z-index:50; padding:20px }
+    .lightbox.open{ display:flex }
+    .lightbox img{ max-width:min(100%, 1100px); max-height:80vh; border-radius:14px; box-shadow:var(--shadow) }
+    .lightbox .close{ position:absolute; top:16px; right:16px; background:rgba(0,0,0,.55); color:#fff; border:1px solid rgba(255,255,255,.25); border-radius:12px; padding:8px 12px; cursor:pointer }
+    .lightbox .nav{ position:absolute; top:50%; transform:translateY(-50%); font-size:30px; background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.2); color:#fff; width:42px; height:42px; border-radius:50%; display:grid; place-items:center; cursor:pointer }
+    .lightbox .prev{ left:14px }
+    .lightbox .next{ right:14px }
+
+    footer{ color:var(--muted); text-align:center; padding:30px 10px }
+    .tiny{ font-size:12px }
+
+    /* Edytowalne (opcjonalne) */
+    [contenteditable="true"]{ outline:none; border-radius:10px; transition: box-shadow .15s }
+    [contenteditable="true"]:focus{ box-shadow: var(--ring) }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="card">
+      <h1 contenteditable="true" spellcheck="false">Wszystkiego najlepszego Kutasiasty! 🎉</h1>
+      <p class="subtitle" contenteditable="true" spellcheck="false">Aby aktywować kupon o wartości 100zł krzyknij głośno "jebać komunę" a pieniądze zostaną przelane na twoje konto!</p>
+    </header>
+
+    <section class="card wish" aria-labelledby="zyczenia-tytul">
+      <h2 id="zyczenia-tytul">życzenia</h2>
+      <p contenteditable="true" spellcheck="false">Wszystkiego najlepszego już nie taki młody (ale nadal głupi tak samo jak był) kurwiarzu KASY CHLANIA I RUCHANIA!</p>
+    </section>
+
+    <section class="card" aria-labelledby="galeria-tytul" style="margin-top:18px">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <h2 id="galeria-tytul" style="margin:0">🖼️ Galeria (do <span id="max">40</span> zdjęć)</h2>
+          <span class="limit" id="counter">0 / 40</span>
+        </div>
+        <div class="toolbar-left">
+          <label class="btn" for="fileInput">Dodaj zdjęcia</label>
+          <button class="btn ghost" id="addPlaceholders" title="Wstaw przykładowe obrazki (z URL)">Wstaw przykłady</button>
+          <button class="btn ghost" id="clearAll" title="Usuń wszystkie">Wyczyść</button>
+        </div>
+      </div>
+
+      <!-- Uploader -->
+      <input id="fileInput" type="file" accept="image/*" multiple hidden>
+      <div class="limit" style="margin-top:6px">Możesz wrzucić pliki (JPG/PNG/WebP) przeciągając je tutaj lub klikając „Dodaj zdjęcia”.</div>
+
+      <!-- Drop area / Grid -->
+      <div id="dropArea" class="gallery" aria-live="polite"></div>
+    </section>
+
+    <footer>
+      <div>Made with VSC dla najzajebistrzego ziomka</div>
+    </footer>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Podgląd zdjęcia">
+    <button class="close" id="closeLightbox" aria-label="Zamknij">✕</button>
+    <button class="nav prev" id="prevBtn" aria-label="Poprzednie">‹</button>
+    <img id="lightboxImg" alt="Podgląd zdjęcia" />
+    <button class="nav next" id="nextBtn" aria-label="Następne">›</button>
+  </div>
+
+  <script>
+    // =============================
+    // Konfiguracja
+    // =============================
+    const MAX_IMAGES = 40;
+
+    // =============================
+    // Elementy
+    // =============================
+    const fileInput = document.getElementById('fileInput');
+    const dropArea  = document.getElementById('dropArea');
+    const counter   = document.getElementById('counter');
+    const addPlaceholdersBtn = document.getElementById('addPlaceholders');
+    const clearAllBtn = document.getElementById('clearAll');
+
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const closeLightbox = document.getElementById('closeLightbox');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    // Stan
+    let images = []; // {src, name}
+    let currentIndex = 0;
+
+    // =============================
+    // Helpery
+    // =============================
+    function updateCounter(){ counter.textContent = `${images.length} / ${MAX_IMAGES}`; }
+
+    function createTile(imgSrc, name, index){
+      const tile = document.createElement('figure');
+      tile.className = 'tile';
+
+      const img = document.createElement('img');
+      img.loading = 'lazy';
+      img.alt = name || 'Zdjęcie';
+      img.src = imgSrc;
+
+      img.addEventListener('click', () => openLightbox(index));
+
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove';
+      removeBtn.textContent = 'Usuń';
+      removeBtn.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        images.splice(index, 1);
+        renderGallery();
+      });
+
+      tile.appendChild(img);
+      tile.appendChild(removeBtn);
+      return tile;
+    }
+
+    function renderGallery(){
+      dropArea.innerHTML = '';
+      images.forEach((it, idx)=>{
+        dropArea.appendChild(createTile(it.src, it.name, idx));
+      });
+      updateCounter();
+    }
+
+    function handleFiles(fileList){
+      const space = MAX_IMAGES - images.length;
+      if(space <= 0){ alert(`Osiągnięto limit ${MAX_IMAGES} zdjęć.`); return; }
+      const files = Array.from(fileList).slice(0, space);
+
+      files.forEach(file => {
+        if(!file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          images.push({ src: e.target.result, name: file.name });
+          renderGallery();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // =============================
+    // Upload: klik i DnD
+    // =============================
+    fileInput.addEventListener('change', (e)=> handleFiles(e.target.files));
+
+    // DnD na całą kartę galerii
+    const galleryCard = dropArea.parentElement;
+    ;['dragenter','dragover'].forEach(ev => {
+      galleryCard.addEventListener(ev, (e)=>{ e.preventDefault(); galleryCard.style.boxShadow = 'var(--ring)'; });
+    });
+    ;['dragleave','drop'].forEach(ev => {
+      galleryCard.addEventListener(ev, (e)=>{ e.preventDefault(); galleryCard.style.boxShadow = ''; });
+    });
+    galleryCard.addEventListener('drop', (e)=>{
+      if(e.dataTransfer?.files?.length){ handleFiles(e.dataTransfer.files); }
+    });
+
+    // =============================
+    // Placeholders (z URL) — możesz podmienić na swoje linki
+    // =============================
+    const placeholderURLs = [
+      'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee',
+      'https://images.unsplash.com/photo-1492684223066-81342ee5ff30',
+      'https://images.unsplash.com/photo-1470770903676-69b98201ea1c',
+      'https://images.unsplash.com/photo-1520975916090-3105956dac38',
+      'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa',
+      'https://images.unsplash.com/photo-1488646953014-85cb44e25828',
+      'https://images.unsplash.com/photo-1510070009289-b5bc34383727',
+      'https://images.unsplash.com/photo-1520975594083-3b2c3b66f095'
+    ];
+
+    addPlaceholdersBtn.addEventListener('click', ()=>{
+      const space = MAX_IMAGES - images.length;
+      if(space <= 0){ alert(`Osiągnięto limit ${MAX_IMAGES} zdjęć.`); return; }
+      const toAdd = Math.min(space, placeholderURLs.length);
+      for(let i=0;i<toAdd;i++){
+        images.push({ src: placeholderURLs[i] + '?auto=format&fit=crop&w=1200&q=60', name: 'Przykład' });
+      }
+      renderGallery();
+    });
+
+    clearAllBtn.addEventListener('click', ()=>{
+      if(confirm('Usunąć wszystkie zdjęcia?')){ images = []; renderGallery(); }
+    });
+
+    // =============================
+    // Lightbox
+    // =============================
+    function openLightbox(index){
+      currentIndex = index;
+      lightboxImg.src = images[currentIndex].src;
+      lightbox.classList.add('open');
+    }
+    function close(){ lightbox.classList.remove('open'); lightboxImg.removeAttribute('src'); }
+
+    closeLightbox.addEventListener('click', close);
+    lightbox.addEventListener('click', (e)=>{ if(e.target === lightbox) close(); });
+    document.addEventListener('keydown', (e)=>{
+      if(!lightbox.classList.contains('open')) return;
+      if(e.key === 'Escape') close();
+      if(e.key === 'ArrowRight') next();
+      if(e.key === 'ArrowLeft') prev();
+    });
+
+    function next(){ if(images.length){ currentIndex = (currentIndex + 1) % images.length; lightboxImg.src = images[currentIndex].src; } }
+    function prev(){ if(images.length){ currentIndex = (currentIndex - 1 + images.length) % images.length; lightboxImg.src = images[currentIndex].src; } }
+    nextBtn.addEventListener('click', (e)=>{ e.stopPropagation(); next(); });
+    prevBtn.addEventListener('click', (e)=>{ e.stopPropagation(); prev(); });
+
+    // Start
+    updateCounter();
+  </script>
